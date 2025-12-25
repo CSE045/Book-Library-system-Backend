@@ -10,7 +10,7 @@ exports.getAllBooks = async (req, res) => {
       data: { books }
     });
   } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
+    res.status(500).json({ status: "fail", message: err.message });
   }
 };
 
@@ -18,9 +18,10 @@ exports.getAllBooks = async (req, res) => {
 exports.getBook = async (req, res) => {
   try {
     const book = await Book.findById(req.params.id);
+    if (!book) return res.status(404).json({ status: "fail", message: "Book not found" });
     res.status(200).json({ status: "success", data: { book } });
   } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
+    res.status(500).json({ status: "fail", message: err.message });
   }
 };
 
@@ -37,10 +38,8 @@ exports.createBook = async (req, res) => {
 // Update book
 exports.updateBook = async (req, res) => {
   try {
-    const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true
-    });
+    const book = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+    if (!book) return res.status(404).json({ status: "fail", message: "Book not found" });
     res.status(200).json({ status: "success", data: { book } });
   } catch (err) {
     res.status(400).json({ status: "fail", message: err.message });
@@ -50,9 +49,10 @@ exports.updateBook = async (req, res) => {
 // Delete book
 exports.deleteBook = async (req, res) => {
   try {
-    await Book.findByIdAndDelete(req.params.id);
+    const book = await Book.findByIdAndDelete(req.params.id);
+    if (!book) return res.status(404).json({ status: "fail", message: "Book not found" });
     res.status(204).json({ status: "success", data: null });
   } catch (err) {
-    res.status(400).json({ status: "fail", message: err.message });
+    res.status(500).json({ status: "fail", message: err.message });
   }
 };
